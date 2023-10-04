@@ -11,7 +11,15 @@ const UserSchema = new mongoose.Schema({
     password:{
         type: String,
         required: true
-    }
+    },
+    name: String,
+    birthdate: Number,
+    idType: String,
+    idNum: String,
+    occupation: String,
+    gender: String,
+    mobileNo: String
+    
 })
 
 const User = mongoose.model('user',UserSchema)
@@ -55,6 +63,7 @@ app.post('/signup',async(req,res)=>{
 
     try{
         const check = await User.findOne({email:email})
+        console.log(check)
         if(check){
             res.json("exist")
         }
@@ -67,6 +76,60 @@ app.post('/signup',async(req,res)=>{
         res.json("notexist")
     }
     
+})
+
+app.post('/find',async(req,res)=>{
+    const {email} = req.body
+
+    try{
+        const check = await User.findOne({email:email})
+        if(check){
+            res.json(check)
+        }
+        else{
+            res.json("notexist")
+        }
+    }
+    catch(e){
+        res.json("notexist")
+    }
+})
+
+app.post('/feed',async(req,res)=>{
+    const {email,name,birthdate,idType,idNum,occupation,gender,mobileNo} = req.body
+
+    try{
+        const check = await User.updateOne({email:email},{
+            $set: {name: name,birthdate: birthdate,idType: idType,idNum: idNum,occupation: occupation,gender: gender,mobileNo: mobileNo}
+        })
+        if(check){
+            res.json("Done")
+        }
+        else{
+            res.json("Fault")
+        }
+    }
+    catch(err){
+        res.json("Fault in our stars")
+    }
+})
+
+app.post('/user',async(req,res)=>{
+    const {birthdate} = req.body
+
+    try{
+        const check = await User.find({birthdate:{$gte:birthdate}})
+        if(check){
+            res.json(check)
+            console.log(check)
+        }
+        else{
+            res.json("Nothing Found")
+        }
+    }
+    catch(err){
+        res.json("Fault in our stars")
+    }
 })
 
 app.listen(4000,()=>{
